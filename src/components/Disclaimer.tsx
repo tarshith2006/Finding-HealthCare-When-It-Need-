@@ -1,12 +1,37 @@
 import React from 'react';
 import { AlertTriangle, PhoneCall, Info } from 'lucide-react';
+import { CallTarget, UserLocation } from '../types';
+import { getEmergencyHotlines, triggerDeviceDial } from '../services/callService';
 
 interface DisclaimerProps {
   variant?: 'general' | 'emergency' | 'demo';
   compact?: boolean;
+  userLocation?: UserLocation | null;
+  onStartCall?: (target: CallTarget) => void;
 }
 
-export const Disclaimer: React.FC<DisclaimerProps> = ({ variant = 'general', compact = false }) => {
+export const Disclaimer: React.FC<DisclaimerProps> = ({
+  variant = 'general',
+  compact = false,
+  userLocation,
+  onStartCall
+}) => {
+  const hotlines = getEmergencyHotlines(userLocation);
+
+  const handleCallEmergency = () => {
+    if (onStartCall) {
+      onStartCall({
+        phoneNumber: hotlines.primary.number,
+        title: hotlines.primary.label,
+        subtitle: `${hotlines.primary.desc} • Immediate Medical Dispatch`,
+        department: 'National Emergency Services',
+        isEmergency: true
+      });
+    } else {
+      triggerDeviceDial(hotlines.primary.number);
+    }
+  };
+
   if (variant === 'emergency') {
     return (
       <aside
@@ -17,13 +42,18 @@ export const Disclaimer: React.FC<DisclaimerProps> = ({ variant = 'general', com
           <div className="p-2 bg-rose-100 text-rose-700 rounded-lg shrink-0 mt-0.5">
             <PhoneCall className="w-5 h-5" />
           </div>
-          <div className="text-sm leading-relaxed">
-            <p className="font-semibold text-rose-950 flex items-center gap-2">
+          <div className="text-sm leading-relaxed flex-1">
+            <div className="font-semibold text-rose-950 flex items-center justify-between flex-wrap gap-2">
               <span>Immediate Medical Emergency?</span>
-              <span className="inline-flex items-center px-2 py-0.5 text-xs font-bold bg-rose-200 text-rose-800 rounded-full">
-                Call Local 911 / 112
-              </span>
-            </p>
+              <button
+                type="button"
+                onClick={handleCallEmergency}
+                className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-full transition-colors shadow-2xs cursor-pointer"
+              >
+                <PhoneCall className="w-3 h-3" />
+                <span>Call {hotlines.primary.number} ({hotlines.primary.label})</span>
+              </button>
+            </div>
             <p className="text-rose-800 mt-1">
               If this is a life-threatening crisis, do not rely solely on mobile navigation.
               Immediately contact your local emergency hotline or ambulance dispatch. CareRoute is an assistance directory and does not replace emergency medical response.

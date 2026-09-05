@@ -9,9 +9,10 @@ import {
   ExternalLink,
   Droplet
 } from 'lucide-react';
-import { Hospital, UserLocation } from '../types';
+import { Hospital, UserLocation, CallTarget } from '../types';
 import { calculateDistance, calculateETA, formatETA } from '../utils/distanceCalculator';
 import { openNavigation } from '../services/navigationService';
+import { triggerDeviceDial } from '../services/callService';
 
 interface HospitalCardProps {
   hospital: Hospital;
@@ -19,6 +20,7 @@ interface HospitalCardProps {
   onViewDetails: (hospital: Hospital) => void;
   highlightService?: string;
   highlightBlood?: string;
+  onStartCall?: (target: CallTarget) => void;
 }
 
 export const HospitalCard: React.FC<HospitalCardProps> = ({
@@ -26,7 +28,8 @@ export const HospitalCard: React.FC<HospitalCardProps> = ({
   userLocation,
   onViewDetails,
   highlightService,
-  highlightBlood
+  highlightBlood,
+  onStartCall
 }) => {
   const baseLat = userLocation?.latitude ?? 12.9716;
   const baseLon = userLocation?.longitude ?? 77.5946;
@@ -46,7 +49,20 @@ export const HospitalCard: React.FC<HospitalCardProps> = ({
 
   const handleCall = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.location.href = `tel:${hospital.emergencyPhone || hospital.phone}`;
+    const phoneToCall = hospital.emergencyPhone || hospital.phone;
+    if (onStartCall) {
+      onStartCall({
+        phoneNumber: phoneToCall,
+        title: hospital.name,
+        subtitle: hospital.address,
+        hospitalName: hospital.name,
+        department: hospital.emergencyPhone ? 'Emergency & Trauma Desk' : 'Main Hospital Line',
+        address: hospital.address,
+        isEmergency: !!hospital.emergencyPhone
+      });
+    } else {
+      triggerDeviceDial(phoneToCall);
+    }
   };
 
   return (

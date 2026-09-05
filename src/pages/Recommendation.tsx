@@ -13,7 +13,8 @@ import {
   ChevronRight,
   Droplet,
   Stethoscope,
-  Building2
+  Building2,
+  Phone
 } from 'lucide-react';
 import {
   BloodGroup,
@@ -23,7 +24,7 @@ import {
   ServiceName,
   UserLocation
 } from '../types';
-import { HOSPITALS_DATA } from '../data/hospitalData';
+import { HOSPITALS_DATA, getHospitalsForLocation } from '../data/hospitalData';
 import { EMERGENCY_OPTIONS } from '../data/emergencyData';
 import { recommendHospital } from '../utils/hospitalRecommendation';
 import { RecommendationCard } from '../components/RecommendationCard';
@@ -32,12 +33,15 @@ import { LocationButton } from '../components/LocationButton';
 import { saveRecommendation } from '../services/storageService';
 import { openNavigation } from '../services/navigationService';
 import { formatETA } from '../utils/distanceCalculator';
+import { CallTarget } from '../types';
+import { triggerDeviceDial } from '../services/callService';
 
 interface RecommendationPageProps {
   userLocation: UserLocation | null;
   onLocationChange: (loc: UserLocation) => void;
   onViewDetails: (hospital: Hospital) => void;
   initialEmergencyId?: EmergencyCategory | '';
+  onStartCall?: (target: CallTarget) => void;
 }
 
 const BLOOD_GROUPS: BloodGroup[] = [
@@ -67,7 +71,8 @@ export const RecommendationPage: React.FC<RecommendationPageProps> = ({
   userLocation,
   onLocationChange,
   onViewDetails,
-  initialEmergencyId = ''
+  initialEmergencyId = '',
+  onStartCall
 }) => {
   const [emergencyType, setEmergencyType] = useState<EmergencyCategory | ''>(initialEmergencyId);
   const [bloodGroup, setBloodGroup] = useState<BloodGroup | ''>('O+');
@@ -75,11 +80,12 @@ export const RecommendationPage: React.FC<RecommendationPageProps> = ({
 
   // Calculate recommendation results
   const recommendationData = useMemo(() => {
+    const localizedHospitals = getHospitalsForLocation(userLocation);
     return recommendHospital({
       emergencyType,
       bloodGroup,
       requiredService,
-      hospitals: HOSPITALS_DATA,
+      hospitals: localizedHospitals,
       userLocation
     });
   }, [emergencyType, bloodGroup, requiredService, userLocation]);
@@ -234,6 +240,7 @@ export const RecommendationPage: React.FC<RecommendationPageProps> = ({
             breakdown={topMatch.scoreBreakdown}
             userLocation={userLocation}
             onViewDetails={onViewDetails}
+            onStartCall={onStartCall}
           />
 
           {/* Alternative Hospitals Comparison (Runner-ups) */}
@@ -289,23 +296,49 @@ export const RecommendationPage: React.FC<RecommendationPageProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 flex-wrap">
                       <button
                         type="button"
-                        onClick={() => onViewDetails(res.hospital)}
-                        className="text-xs font-semibold text-slate-700 hover:underline"
+                        onClick={() => {
+                          const phone = res.hospital.emergencyPhone || res.hospital.phone;
+                          if (onStartCall) {
+                            onStartCall({
+                              phoneNumber: phone,
+                              title: res.hospital.name,
+                              subtitle: res.hospital.address,
+                              hospitalName: res.hospital.name,
+                              department: res.hospital.emergencyPhone ? 'Emergency & Trauma' : 'Hospital Reception',
+                              address: res.hospital.address,
+                              isEmergency: !!res.hospital.emergencyPhone
+                            });
+                          } else {
+                            triggerDeviceDial(phone);
+                          }
+                        }}
+                        className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer"
                       >
-                        View Details
+                        <Phone className="w-3 h-3" />
+                        <span>Call</span>
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={() => openNavigation(res.hospital, userLocation)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 transition-colors"
-                      >
-                        <Navigation className="w-3 h-3" />
-                        <span>Route</span>
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => onViewDetails(res.hospital)}
+                          className="text-xs font-semibold text-slate-600 hover:underline px-2 py-1"
+                        >
+                          Details
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => openNavigation(res.hospital, userLocation)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 transition-colors cursor-pointer"
+                        >
+                          <Navigation className="w-3 h-3" />
+                          <span>Route</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

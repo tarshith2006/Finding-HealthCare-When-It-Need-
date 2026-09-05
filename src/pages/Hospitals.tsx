@@ -9,8 +9,8 @@ import {
   SlidersHorizontal,
   Compass
 } from 'lucide-react';
-import { FilterState, Hospital, UserLocation } from '../types';
-import { HOSPITALS_DATA } from '../data/hospitalData';
+import { FilterState, Hospital, UserLocation, CallTarget } from '../types';
+import { HOSPITALS_DATA, getHospitalsForLocation } from '../data/hospitalData';
 import { HospitalCard } from '../components/HospitalCard';
 import { SearchBar } from '../components/SearchBar';
 import { FilterBar } from '../components/FilterBar';
@@ -26,6 +26,7 @@ interface HospitalsPageProps {
   onViewDetails: (hospital: Hospital) => void;
   initialServiceFilter?: string;
   initialEmergencyOnly?: boolean;
+  onStartCall?: (target: CallTarget) => void;
 }
 
 export const HospitalsPage: React.FC<HospitalsPageProps> = ({
@@ -33,7 +34,8 @@ export const HospitalsPage: React.FC<HospitalsPageProps> = ({
   onLocationChange,
   onViewDetails,
   initialServiceFilter = '',
-  initialEmergencyOnly = false
+  initialEmergencyOnly = false,
+  onStartCall
 }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -51,9 +53,13 @@ export const HospitalsPage: React.FC<HospitalsPageProps> = ({
   const baseLat = userLocation?.latitude ?? 12.9716;
   const baseLon = userLocation?.longitude ?? 77.5946;
 
+  const localizedHospitals = useMemo(() => {
+    return getHospitalsForLocation(userLocation);
+  }, [userLocation]);
+
   // Process and filter hospitals
   const filteredHospitals = useMemo(() => {
-    return HOSPITALS_DATA.filter((hospital) => {
+    return localizedHospitals.filter((hospital) => {
       // 1. Text search query
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase();
@@ -218,6 +224,7 @@ export const HospitalsPage: React.FC<HospitalsPageProps> = ({
               onViewDetails={onViewDetails}
               highlightService={filters.selectedService}
               highlightBlood={filters.selectedBloodGroup}
+              onStartCall={onStartCall}
             />
           ))}
         </div>

@@ -10,29 +10,45 @@ import {
   ChevronRight,
   Info
 } from 'lucide-react';
-import { Hospital, HospitalScoreBreakdown, UserLocation } from '../types';
+import { Hospital, HospitalScoreBreakdown, UserLocation, CallTarget } from '../types';
 import { openNavigation } from '../services/navigationService';
 import { formatETA } from '../utils/distanceCalculator';
+import { triggerDeviceDial } from '../services/callService';
 
 interface RecommendationCardProps {
   hospital: Hospital;
   breakdown: HospitalScoreBreakdown;
   userLocation: UserLocation | null;
   onViewDetails: (hospital: Hospital) => void;
+  onStartCall?: (target: CallTarget) => void;
 }
 
 export const RecommendationCard: React.FC<RecommendationCardProps> = ({
   hospital,
   breakdown,
   userLocation,
-  onViewDetails
+  onViewDetails,
+  onStartCall
 }) => {
   const handleStartNavigation = () => {
     openNavigation(hospital, userLocation);
   };
 
   const handleCall = () => {
-    window.location.href = `tel:${hospital.emergencyPhone || hospital.phone}`;
+    const phoneToCall = hospital.emergencyPhone || hospital.phone;
+    if (onStartCall) {
+      onStartCall({
+        phoneNumber: phoneToCall,
+        title: hospital.name,
+        subtitle: hospital.address,
+        hospitalName: hospital.name,
+        department: hospital.emergencyPhone ? 'Emergency & Trauma Desk' : 'Main Line',
+        address: hospital.address,
+        isEmergency: true
+      });
+    } else {
+      triggerDeviceDial(phoneToCall);
+    }
   };
 
   return (

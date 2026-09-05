@@ -9,8 +9,9 @@ import {
   PhoneForwarded,
   ArrowRight
 } from 'lucide-react';
-import { AvailabilityStatus, BloodGroup, Hospital, UserLocation } from '../types';
+import { AvailabilityStatus, BloodGroup, Hospital, UserLocation, CallTarget } from '../types';
 import { calculateDistance, calculateETA, formatETA } from '../utils/distanceCalculator';
+import { triggerDeviceDial } from '../services/callService';
 
 interface BloodCardProps {
   hospital: Hospital;
@@ -18,6 +19,7 @@ interface BloodCardProps {
   status: AvailabilityStatus;
   userLocation: UserLocation | null;
   onViewHospital: (hospital: Hospital) => void;
+  onStartCall?: (target: CallTarget) => void;
 }
 
 export const BloodCard: React.FC<BloodCardProps> = ({
@@ -25,7 +27,8 @@ export const BloodCard: React.FC<BloodCardProps> = ({
   bloodGroup,
   status,
   userLocation,
-  onViewHospital
+  onViewHospital,
+  onStartCall
 }) => {
   const baseLat = userLocation?.latitude ?? 12.9716;
   const baseLon = userLocation?.longitude ?? 77.5946;
@@ -37,6 +40,24 @@ export const BloodCard: React.FC<BloodCardProps> = ({
     hospital.longitude
   );
   const etaMinutes = calculateETA(distanceKm);
+
+  const handleCallBloodBank = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const phoneToCall = hospital.phone;
+    if (onStartCall) {
+      onStartCall({
+        phoneNumber: phoneToCall,
+        title: hospital.name,
+        subtitle: `Blood Bank Direct Line • Group ${bloodGroup} (${status})`,
+        hospitalName: hospital.name,
+        department: `Blood Transfusion Unit (${bloodGroup})`,
+        address: hospital.address,
+        isEmergency: status === 'Available' || status === 'Limited'
+      });
+    } else {
+      triggerDeviceDial(phoneToCall);
+    }
+  };
 
   const getStatusBadge = () => {
     switch (status) {
@@ -108,13 +129,15 @@ export const BloodCard: React.FC<BloodCardProps> = ({
       </div>
 
       <div className="flex items-center justify-between gap-2 pt-1">
-        <a
-          href={`tel:${hospital.phone}`}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-emerald-700 transition-colors p-1"
+        <button
+          type="button"
+          id={`call-blood-bank-${hospital.id}`}
+          onClick={handleCallBloodBank}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-emerald-700 transition-colors p-1 cursor-pointer"
         >
-          <Phone className="w-3.5 h-3.5" />
+          <Phone className="w-3.5 h-3.5 text-emerald-700" />
           <span>Call Blood Bank</span>
-        </a>
+        </button>
 
         <button
           type="button"

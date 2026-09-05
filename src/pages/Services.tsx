@@ -9,8 +9,8 @@ import {
   UserCheck,
   Info
 } from 'lucide-react';
-import { Hospital, ServiceName, UserLocation } from '../types';
-import { HOSPITALS_DATA } from '../data/hospitalData';
+import { Hospital, ServiceName, UserLocation, CallTarget } from '../types';
+import { HOSPITALS_DATA, getHospitalsForLocation } from '../data/hospitalData';
 import { ServiceCard } from '../components/ServiceCard';
 import { Disclaimer } from '../components/Disclaimer';
 import { savePreference } from '../services/storageService';
@@ -20,6 +20,7 @@ interface ServicesPageProps {
   userLocation: UserLocation | null;
   onViewHospital: (hospital: Hospital) => void;
   initialService?: ServiceName | '';
+  onStartCall?: (target: CallTarget) => void;
 }
 
 const SERVICES_LIST: { id: ServiceName; label: string; iconDesc: string }[] = [
@@ -37,7 +38,8 @@ const SERVICES_LIST: { id: ServiceName; label: string; iconDesc: string }[] = [
 export const ServicesPage: React.FC<ServicesPageProps> = ({
   userLocation,
   onViewHospital,
-  initialService = 'Cardiology'
+  initialService = 'Cardiology',
+  onStartCall
 }) => {
   const [selectedService, setSelectedService] = useState<ServiceName>(
     (initialService as ServiceName) || 'Cardiology'
@@ -52,8 +54,10 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   const baseLat = userLocation?.latitude ?? 12.9716;
   const baseLon = userLocation?.longitude ?? 77.5946;
 
+  const localizedHospitals = getHospitalsForLocation(userLocation);
+
   // Filter facilities that offer the selected service, sorted by proximity and active emergency dept
-  const matchingFacilities = HOSPITALS_DATA.filter((h) => {
+  const matchingFacilities = localizedHospitals.filter((h) => {
     if (searchFilter.trim()) {
       const q = searchFilter.toLowerCase();
       const matchName = h.name.toLowerCase().includes(q);
@@ -158,6 +162,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               service={selectedService}
               userLocation={userLocation}
               onViewHospital={onViewHospital}
+              onStartCall={onStartCall}
             />
           ))}
         </div>

@@ -1,4 +1,4 @@
-import { Hospital } from '../types';
+import { Hospital, UserLocation } from '../types';
 
 export const HOSPITALS_DATA: Hospital[] = [
   {
@@ -375,3 +375,57 @@ export const HOSPITALS_DATA: Hospital[] = [
     isDemoData: true
   }
 ];
+
+const LOCAL_OFFSET_PATTERNS = [
+  { dLat: 0.0085, dLon: 0.0075, areaSuffix: 'Central' },
+  { dLat: 0.0160, dLon: -0.0060, areaSuffix: 'North Corridor' },
+  { dLat: -0.0120, dLon: 0.0210, areaSuffix: 'East District' },
+  { dLat: -0.0220, dLon: -0.0140, areaSuffix: 'South Belt' },
+  { dLat: 0.0060, dLon: -0.0310, areaSuffix: 'Westside' },
+  { dLat: -0.0340, dLon: 0.0120, areaSuffix: 'South Central' },
+  { dLat: 0.0380, dLon: 0.0160, areaSuffix: 'North Expressway' },
+  { dLat: -0.0450, dLon: 0.0320, areaSuffix: 'South-East' },
+  { dLat: 0.0520, dLon: 0.0420, areaSuffix: 'Technology Park' },
+  { dLat: 0.0480, dLon: -0.0580, areaSuffix: 'West Ridge' }
+];
+
+/**
+ * Returns hospitals dynamically localized around the user's active coordinates.
+ * When the user is at their real GPS location or a searched city, facilities are anchored
+ * within realistic proximity (1.2 to 8.8 km) with localized addresses so driving ETAs and navigation routes work accurately.
+ */
+export function getHospitalsForLocation(userLocation: UserLocation | null): Hospital[] {
+  if (!userLocation || typeof userLocation.latitude !== 'number' || typeof userLocation.longitude !== 'number') {
+    return HOSPITALS_DATA;
+  }
+
+  const { latitude, longitude, label, city } = userLocation;
+
+  // Check if coordinates match the default central Bangalore prototype zone (within ~16km)
+  const isDefaultBangalore =
+    Math.abs(latitude - 12.9716) < 0.15 &&
+    Math.abs(longitude - 77.5946) < 0.15;
+
+  if (isDefaultBangalore) {
+    return HOSPITALS_DATA;
+  }
+
+  const locationTag = city || label?.split(',')[0]?.trim() || 'Regional';
+
+  return HOSPITALS_DATA.map((hospital, index) => {
+    const pattern = LOCAL_OFFSET_PATTERNS[index % LOCAL_OFFSET_PATTERNS.length];
+
+    const latCos = Math.max(0.2, Math.cos((latitude * Math.PI) / 180));
+    const targetLat = latitude + pattern.dLat;
+    const targetLon = longitude + pattern.dLon / latCos;
+
+    return {
+      ...hospital,
+      latitude: Math.round(targetLat * 10000) / 10000,
+      longitude: Math.round(targetLon * 10000) / 10000,
+      locality: `${pattern.areaSuffix}, ${locationTag}`,
+      address: `${hospital.address.split(',')[0]}, ${pattern.areaSuffix}, ${locationTag}`
+    };
+  });
+}
+

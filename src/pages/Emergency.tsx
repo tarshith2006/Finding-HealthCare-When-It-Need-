@@ -10,8 +10,8 @@ import {
   MapPin
 } from 'lucide-react';
 import { EMERGENCY_OPTIONS } from '../data/emergencyData';
-import { HOSPITALS_DATA } from '../data/hospitalData';
-import { EmergencyCategory, EmergencyOption, Hospital, UserLocation } from '../types';
+import { HOSPITALS_DATA, getHospitalsForLocation } from '../data/hospitalData';
+import { EmergencyCategory, EmergencyOption, Hospital, UserLocation, CallTarget } from '../types';
 import { EmergencyCard } from '../components/EmergencyCard';
 import { HospitalCard } from '../components/HospitalCard';
 import { Disclaimer } from '../components/Disclaimer';
@@ -25,6 +25,7 @@ interface EmergencyPageProps {
   onNavigateToHospitals: (emergencyService?: string) => void;
   onNavigateToRecommendation: (emergencyId: EmergencyCategory) => void;
   onViewHospitalDetails: (hospital: Hospital) => void;
+  onStartCall?: (target: CallTarget) => void;
 }
 
 export const EmergencyPage: React.FC<EmergencyPageProps> = ({
@@ -33,7 +34,8 @@ export const EmergencyPage: React.FC<EmergencyPageProps> = ({
   onSelectEmergency,
   onNavigateToHospitals,
   onNavigateToRecommendation,
-  onViewHospitalDetails
+  onViewHospitalDetails,
+  onStartCall
 }) => {
   const [selectedOption, setSelectedOption] = useState<EmergencyOption | null>(() => {
     return EMERGENCY_OPTIONS.find((e) => e.id === selectedEmergencyId) || null;
@@ -48,9 +50,11 @@ export const EmergencyPage: React.FC<EmergencyPageProps> = ({
   const baseLat = userLocation?.latitude ?? 12.9716;
   const baseLon = userLocation?.longitude ?? 77.5946;
 
+  const localizedHospitals = getHospitalsForLocation(userLocation);
+
   // Filter prioritized hospitals that match this emergency
   const matchingHospitals = selectedOption
-    ? HOSPITALS_DATA.filter(
+    ? localizedHospitals.filter(
         (h) =>
           h.emergencyAvailable &&
           selectedOption.requiredServices.some((srv) => h.services.includes(srv))
@@ -168,6 +172,7 @@ export const EmergencyPage: React.FC<EmergencyPageProps> = ({
                   userLocation={userLocation}
                   onViewDetails={onViewHospitalDetails}
                   highlightService={selectedOption.requiredServices[0]}
+                  onStartCall={onStartCall}
                 />
               ))}
             </div>
@@ -175,7 +180,7 @@ export const EmergencyPage: React.FC<EmergencyPageProps> = ({
         </section>
       )}
 
-      <Disclaimer variant="general" compact />
+      <Disclaimer variant="emergency" userLocation={userLocation} onStartCall={onStartCall} compact />
     </div>
   );
 };

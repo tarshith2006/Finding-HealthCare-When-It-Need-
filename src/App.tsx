@@ -10,7 +10,7 @@ import {
   HelpCircle,
   ExternalLink
 } from 'lucide-react';
-import { EmergencyCategory, Hospital, UserLocation } from './types';
+import { EmergencyCategory, Hospital, UserLocation, CallTarget } from './types';
 import { Navbar, NavPage } from './components/Navbar';
 import { Home } from './pages/Home';
 import { EmergencyPage } from './pages/Emergency';
@@ -20,6 +20,7 @@ import { ServicesPage } from './pages/Services';
 import { RecommendationPage } from './pages/Recommendation';
 import { HospitalDetailsModal } from './components/HospitalDetailsModal';
 import { AboutModal } from './components/AboutModal';
+import { CallModal } from './components/CallModal';
 import { getEmergency } from './services/storageService';
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
   });
   const [selectedHospitalForModal, setSelectedHospitalForModal] = useState<Hospital | null>(null);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+  const [activeCallTarget, setActiveCallTarget] = useState<CallTarget | null>(null);
 
   // Cross-page parameters
   const [selectedEmergencyCategory, setSelectedEmergencyCategory] = useState<EmergencyCategory | ''>(() => {
@@ -73,6 +75,9 @@ export default function App() {
         activePage={activePage}
         onNavigate={handleNavigate}
         onOpenAbout={() => setIsAboutModalOpen(true)}
+        userLocation={userLocation}
+        onLocationChange={(loc) => setUserLocation(loc)}
+        onStartCall={setActiveCallTarget}
       />
 
       {/* Main Content View Container */}
@@ -81,6 +86,8 @@ export default function App() {
           <Home
             onNavigate={handleNavigate}
             onSelectEmergency={handleSelectEmergencyFromHome}
+            userLocation={userLocation}
+            onStartCall={setActiveCallTarget}
           />
         )}
 
@@ -92,6 +99,7 @@ export default function App() {
             onNavigateToHospitals={handleNavigateToHospitalsFromEmergency}
             onNavigateToRecommendation={handleNavigateToRecommendationFromEmergency}
             onViewHospitalDetails={(h) => setSelectedHospitalForModal(h)}
+            onStartCall={setActiveCallTarget}
           />
         )}
 
@@ -102,6 +110,7 @@ export default function App() {
             onViewDetails={(h) => setSelectedHospitalForModal(h)}
             initialServiceFilter={hospitalsServiceFilter}
             initialEmergencyOnly={hospitalsEmergencyOnly}
+            onStartCall={setActiveCallTarget}
           />
         )}
 
@@ -109,6 +118,7 @@ export default function App() {
           <BloodAvailabilityPage
             userLocation={userLocation}
             onViewHospital={(h) => setSelectedHospitalForModal(h)}
+            onStartCall={setActiveCallTarget}
           />
         )}
 
@@ -116,6 +126,7 @@ export default function App() {
           <ServicesPage
             userLocation={userLocation}
             onViewHospital={(h) => setSelectedHospitalForModal(h)}
+            onStartCall={setActiveCallTarget}
           />
         )}
 
@@ -125,6 +136,7 @@ export default function App() {
             onLocationChange={(loc) => setUserLocation(loc)}
             onViewDetails={(h) => setSelectedHospitalForModal(h)}
             initialEmergencyId={selectedEmergencyCategory}
+            onStartCall={setActiveCallTarget}
           />
         )}
       </main>
@@ -134,12 +146,19 @@ export default function App() {
         hospital={selectedHospitalForModal}
         userLocation={userLocation}
         onClose={() => setSelectedHospitalForModal(null)}
+        onStartCall={setActiveCallTarget}
       />
 
       {/* About & Algorithm Help Modal */}
       <AboutModal
         isOpen={isAboutModalOpen}
         onClose={() => setIsAboutModalOpen(false)}
+      />
+
+      {/* Direct Call / Dialer Modal */}
+      <CallModal
+        target={activeCallTarget}
+        onClose={() => setActiveCallTarget(null)}
       />
 
       {/* Application Footer */}

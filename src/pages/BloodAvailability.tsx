@@ -11,8 +11,8 @@ import {
   Building2,
   Check
 } from 'lucide-react';
-import { BloodGroup, Hospital, UserLocation } from '../types';
-import { HOSPITALS_DATA } from '../data/hospitalData';
+import { BloodGroup, Hospital, UserLocation, CallTarget } from '../types';
+import { HOSPITALS_DATA, getHospitalsForLocation } from '../data/hospitalData';
 import { BloodCard } from '../components/BloodCard';
 import { Disclaimer } from '../components/Disclaimer';
 import { savePreference } from '../services/storageService';
@@ -22,6 +22,7 @@ interface BloodAvailabilityPageProps {
   userLocation: UserLocation | null;
   onViewHospital: (hospital: Hospital) => void;
   initialBloodGroup?: BloodGroup | '';
+  onStartCall?: (target: CallTarget) => void;
 }
 
 const BLOOD_GROUPS: BloodGroup[] = [
@@ -38,7 +39,8 @@ const BLOOD_GROUPS: BloodGroup[] = [
 export const BloodAvailabilityPage: React.FC<BloodAvailabilityPageProps> = ({
   userLocation,
   onViewHospital,
-  initialBloodGroup = 'O+'
+  initialBloodGroup = 'O+',
+  onStartCall
 }) => {
   const [selectedGroup, setSelectedGroup] = useState<BloodGroup>(
     (initialBloodGroup as BloodGroup) || 'O+'
@@ -54,8 +56,10 @@ export const BloodAvailabilityPage: React.FC<BloodAvailabilityPageProps> = ({
   const baseLat = userLocation?.latitude ?? 12.9716;
   const baseLon = userLocation?.longitude ?? 77.5946;
 
+  const localizedHospitals = getHospitalsForLocation(userLocation);
+
   // Filter facilities by blood availability and distance
-  const matchingFacilities = HOSPITALS_DATA.filter((hospital) => {
+  const matchingFacilities = localizedHospitals.filter((hospital) => {
     const status = hospital.bloodAvailability[selectedGroup];
 
     if (onlyAvailable && status !== 'Available') {
@@ -199,6 +203,7 @@ export const BloodAvailabilityPage: React.FC<BloodAvailabilityPageProps> = ({
                 status={hospital.bloodAvailability[selectedGroup]}
                 userLocation={userLocation}
                 onViewHospital={onViewHospital}
+                onStartCall={onStartCall}
               />
             ))}
           </div>

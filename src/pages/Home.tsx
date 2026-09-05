@@ -23,17 +23,41 @@ import { NavPage } from '../components/Navbar';
 import { Disclaimer } from '../components/Disclaimer';
 import { getSearches, getEmergency, getRecommendations } from '../services/storageService';
 import { EMERGENCY_OPTIONS } from '../data/emergencyData';
+import { UserLocation, CallTarget } from '../types';
+import { getEmergencyHotlines, triggerDeviceDial } from '../services/callService';
 
 interface HomeProps {
   onNavigate: (page: NavPage) => void;
   onSelectEmergency: (emergencyId: string) => void;
+  userLocation?: UserLocation | null;
+  onStartCall?: (target: CallTarget) => void;
 }
 
-export const Home: React.FC<HomeProps> = ({ onNavigate, onSelectEmergency }) => {
+export const Home: React.FC<HomeProps> = ({
+  onNavigate,
+  onSelectEmergency,
+  userLocation,
+  onStartCall
+}) => {
   const [quickQuery, setQuickQuery] = useState('');
   const recentSearches = getSearches();
   const lastEmergencyId = getEmergency();
   const recentRecs = getRecommendations();
+  const hotlines = getEmergencyHotlines(userLocation);
+
+  const handleCallHotline = () => {
+    if (onStartCall) {
+      onStartCall({
+        phoneNumber: hotlines.primary.number,
+        title: hotlines.primary.label,
+        subtitle: `${hotlines.primary.desc} • Immediate Medical Dispatch`,
+        department: 'National Emergency Dispatch',
+        isEmergency: true
+      });
+    } else {
+      triggerDeviceDial(hotlines.primary.number);
+    }
+  };
 
   const lastEmergencyObj = lastEmergencyId
     ? EMERGENCY_OPTIONS.find((e) => e.id === lastEmergencyId)
@@ -73,13 +97,15 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onSelectEmergency }) => 
         </div>
 
         <div className="flex items-center gap-2.5 w-full md:w-auto shrink-0">
-          <a
-            href="tel:911"
-            className="flex-1 md:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-rose-700 hover:bg-rose-50 font-bold text-xs sm:text-sm shadow-xs transition-colors"
+          <button
+            type="button"
+            id="home-emergency-call-btn"
+            onClick={handleCallHotline}
+            className="flex-1 md:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-rose-700 hover:bg-rose-50 font-bold text-xs sm:text-sm shadow-xs transition-colors cursor-pointer"
           >
-            <PhoneCall className="w-4 h-4" />
-            <span>Call 911 Direct</span>
-          </a>
+            <PhoneCall className="w-4 h-4 text-rose-700" />
+            <span>Call {hotlines.primary.number} Direct</span>
+          </button>
 
           <button
             type="button"

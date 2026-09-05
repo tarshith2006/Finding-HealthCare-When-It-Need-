@@ -12,6 +12,9 @@ import {
   PhoneCall,
   Activity
 } from 'lucide-react';
+import { UserLocation, CallTarget } from '../types';
+import { LocationButton } from './LocationButton';
+import { getEmergencyHotlines, triggerDeviceDial } from '../services/callService';
 
 export type NavPage =
   | 'home'
@@ -25,18 +28,39 @@ interface NavbarProps {
   activePage: NavPage;
   onNavigate: (page: NavPage) => void;
   onOpenAbout: () => void;
+  userLocation?: UserLocation | null;
+  onLocationChange?: (loc: UserLocation) => void;
+  onStartCall?: (target: CallTarget) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   activePage,
   onNavigate,
-  onOpenAbout
+  onOpenAbout,
+  userLocation,
+  onLocationChange,
+  onStartCall
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const hotlines = getEmergencyHotlines(userLocation);
 
   const handleNav = (page: NavPage) => {
     onNavigate(page);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleEmergencyCall = () => {
+    if (onStartCall) {
+      onStartCall({
+        phoneNumber: hotlines.primary.number,
+        title: hotlines.primary.label,
+        subtitle: `${hotlines.primary.desc} • Immediate Dispatch`,
+        department: 'National Emergency Dispatch',
+        isEmergency: true
+      });
+    } else {
+      triggerDeviceDial(hotlines.primary.number);
+    }
   };
 
   const navItems: { id: NavPage; label: string; icon: React.ReactNode; isEmergency?: boolean }[] = [
@@ -123,38 +147,53 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Right Action: About & Emergency Hotline */}
+          {/* Right Action: Location, About & Emergency Hotline */}
           <div className="hidden sm:flex items-center gap-2">
+            {userLocation && onLocationChange && (
+              <div className="mr-1">
+                <LocationButton
+                  userLocation={userLocation}
+                  onLocationChange={onLocationChange}
+                  onError={() => {}}
+                />
+              </div>
+            )}
+
             <button
               id="nav-about-btn"
               type="button"
               onClick={onOpenAbout}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
               title="System Documentation & Clinical Protocols"
             >
               <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
               <span>Protocol Info</span>
             </button>
 
-            <a
-              href="tel:911"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-colors shadow-xs"
-              title="Immediate Emergency Hotline (911)"
+            <button
+              id="nav-emergency-call-btn"
+              type="button"
+              onClick={handleEmergencyCall}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-colors shadow-xs cursor-pointer"
+              title={`Direct Emergency Dispatch (${hotlines.primary.number})`}
             >
-              <PhoneCall className="w-3.5 h-3.5 text-rose-100" />
-              <span>Call 911</span>
-            </a>
+              <PhoneCall className="w-3.5 h-3.5 text-rose-100 animate-pulse" />
+              <span>Call {hotlines.primary.number}</span>
+            </button>
           </div>
 
           {/* Mobile Hamburger Button */}
           <div className="flex items-center gap-2 lg:hidden">
-            <a
-              href="tel:911"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-white bg-rose-600 rounded-lg shadow-xs sm:hidden"
+            <button
+              type="button"
+              id="nav-mobile-quick-call-btn"
+              onClick={handleEmergencyCall}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-white bg-rose-600 rounded-lg shadow-xs sm:hidden cursor-pointer"
+              title={`Direct Emergency Dispatch (${hotlines.primary.number})`}
             >
               <PhoneCall className="w-3 h-3" />
-              <span>911</span>
-            </a>
+              <span>{hotlines.primary.number}</span>
+            </button>
             <button
               id="mobile-menu-toggle"
               type="button"
@@ -171,7 +210,20 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-5 space-y-1 shadow-lg animate-in slide-in-from-top-2 duration-150">
+        <div className="lg:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-5 space-y-2 shadow-lg animate-in slide-in-from-top-2 duration-150">
+          {userLocation && onLocationChange && (
+            <div className="pb-3 border-b border-slate-100 flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Active Location:
+              </span>
+              <LocationButton
+                userLocation={userLocation}
+                onLocationChange={onLocationChange}
+                onError={() => {}}
+              />
+            </div>
+          )}
+
           <div className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
             Emergency Navigation
           </div>
@@ -211,13 +263,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Protocols & Criteria</span>
             </button>
 
-            <a
-              href="tel:911"
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-rose-600 rounded-lg shadow-xs"
+            <button
+              type="button"
+              id="nav-mobile-drawer-call-btn"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleEmergencyCall();
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-xs cursor-pointer"
             >
               <PhoneCall className="w-3.5 h-3.5" />
-              <span>Emergency 911</span>
-            </a>
+              <span>Emergency {hotlines.primary.number}</span>
+            </button>
           </div>
         </div>
       )}

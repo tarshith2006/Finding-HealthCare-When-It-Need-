@@ -69,6 +69,9 @@ export interface UserLocation {
   longitude: number;
   label?: string;
   isCustom?: boolean;
+  accuracyMeters?: number;
+  city?: string;
+  source?: 'gps' | 'search' | 'preset' | 'network';
 }
 
 export interface HospitalScoreBreakdown {
@@ -94,4 +97,14 @@ export interface FilterState {
   selectedBloodGroup: BloodGroup | '';
   maxDistanceKm: number;
   sortBy: 'nearest' | 'best_match' | 'rating';
+}
+
+export interface CallTarget {
+  phoneNumber: string;
+  title: string;
+  subtitle?: string;
+  isEmergency?: boolean;
+  hospitalName?: string;
+  department?: string;
+  address?: string;
 }

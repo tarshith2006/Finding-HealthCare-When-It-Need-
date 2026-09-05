@@ -15,20 +15,23 @@ import {
   XCircle,
   PhoneForwarded
 } from 'lucide-react';
-import { AvailabilityStatus, BloodGroup, Hospital, UserLocation } from '../types';
+import { AvailabilityStatus, BloodGroup, Hospital, UserLocation, CallTarget } from '../types';
 import { calculateDistance, calculateETA, formatETA } from '../utils/distanceCalculator';
 import { openNavigation } from '../services/navigationService';
+import { triggerDeviceDial } from '../services/callService';
 
 interface HospitalDetailsModalProps {
   hospital: Hospital | null;
   userLocation: UserLocation | null;
   onClose: () => void;
+  onStartCall?: (target: CallTarget) => void;
 }
 
 export const HospitalDetailsModal: React.FC<HospitalDetailsModalProps> = ({
   hospital,
   userLocation,
-  onClose
+  onClose,
+  onStartCall
 }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -39,6 +42,23 @@ export const HospitalDetailsModal: React.FC<HospitalDetailsModalProps> = ({
   }, [onClose]);
 
   if (!hospital) return null;
+
+  const handleCall = () => {
+    const phoneToCall = hospital.emergencyPhone || hospital.phone;
+    if (onStartCall) {
+      onStartCall({
+        phoneNumber: phoneToCall,
+        title: hospital.name,
+        subtitle: hospital.address,
+        hospitalName: hospital.name,
+        department: hospital.emergencyPhone ? 'Emergency & Trauma Desk' : 'Main Reception',
+        address: hospital.address,
+        isEmergency: !!hospital.emergencyPhone
+      });
+    } else {
+      triggerDeviceDial(phoneToCall);
+    }
+  };
 
   const baseLat = userLocation?.latitude ?? 12.9716;
   const baseLon = userLocation?.longitude ?? 77.5946;
@@ -176,13 +196,15 @@ export const HospitalDetailsModal: React.FC<HospitalDetailsModalProps> = ({
 
             <div className="col-span-2 sm:col-span-1 p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl">
               <span className="text-emerald-800 text-xs block font-medium">Emergency Line</span>
-              <a
-                href={`tel:${hospital.emergencyPhone || hospital.phone}`}
-                className="font-extrabold text-emerald-950 text-sm sm:text-base flex items-center gap-1.5 mt-0.5 hover:underline"
+              <button
+                type="button"
+                id="hospital-modal-emergency-phone-btn"
+                onClick={handleCall}
+                className="font-extrabold text-emerald-950 text-sm sm:text-base flex items-center gap-1.5 mt-0.5 hover:underline cursor-pointer text-left w-full"
               >
                 <Phone className="w-4 h-4 text-emerald-700 shrink-0" />
                 <span className="truncate">{hospital.emergencyPhone || hospital.phone}</span>
-              </a>
+              </button>
             </div>
           </div>
 
@@ -252,13 +274,15 @@ export const HospitalDetailsModal: React.FC<HospitalDetailsModalProps> = ({
 
         {/* Modal Footer CTAs */}
         <div className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3 flex-wrap">
-          <a
-            href={`tel:${hospital.emergencyPhone || hospital.phone}`}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 transition-colors"
+          <button
+            type="button"
+            id="hospital-modal-call-facility-btn"
+            onClick={handleCall}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 transition-colors cursor-pointer"
           >
             <Phone className="w-4 h-4 text-emerald-700" />
             <span>Call Facility</span>
-          </a>
+          </button>
 
           <button
             type="button"

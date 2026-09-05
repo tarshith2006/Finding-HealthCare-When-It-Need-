@@ -11,21 +11,24 @@ import {
   XCircle,
   PhoneForwarded
 } from 'lucide-react';
-import { AvailabilityStatus, Hospital, ServiceName, UserLocation } from '../types';
+import { AvailabilityStatus, Hospital, ServiceName, UserLocation, CallTarget } from '../types';
 import { calculateDistance, calculateETA, formatETA } from '../utils/distanceCalculator';
+import { triggerDeviceDial } from '../services/callService';
 
 interface ServiceCardProps {
   hospital: Hospital;
   service: ServiceName;
   userLocation: UserLocation | null;
   onViewHospital: (hospital: Hospital) => void;
+  onStartCall?: (target: CallTarget) => void;
 }
 
 export const ServiceCard: React.FC<ServiceCardProps> = ({
   hospital,
   service,
   userLocation,
-  onViewHospital
+  onViewHospital,
+  onStartCall
 }) => {
   const baseLat = userLocation?.latitude ?? 12.9716;
   const baseLon = userLocation?.longitude ?? 77.5946;
@@ -37,6 +40,24 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
     hospital.longitude
   );
   const etaMinutes = calculateETA(distanceKm);
+
+  const handleCallDesk = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const phoneToCall = hospital.emergencyPhone || hospital.phone;
+    if (onStartCall) {
+      onStartCall({
+        phoneNumber: phoneToCall,
+        title: hospital.name,
+        subtitle: `${service} Service Desk • ${hospital.address}`,
+        hospitalName: hospital.name,
+        department: `${service} Department`,
+        address: hospital.address,
+        isEmergency: hospital.emergencyAvailable
+      });
+    } else {
+      triggerDeviceDial(phoneToCall);
+    }
+  };
 
   // Check specialist matches
   const matchingSpecialist = hospital.specialists.find((s) =>
@@ -126,13 +147,15 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
       </div>
 
       <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
-        <a
-          href={`tel:${hospital.phone}`}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-emerald-700 transition-colors"
+        <button
+          type="button"
+          id={`call-service-desk-${hospital.id}`}
+          onClick={handleCallDesk}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-emerald-700 transition-colors cursor-pointer"
         >
-          <Phone className="w-3.5 h-3.5" />
+          <Phone className="w-3.5 h-3.5 text-emerald-700" />
           <span>Call Desk</span>
-        </a>
+        </button>
 
         <button
           type="button"
