@@ -1,0 +1,6 @@
+{
+  "name": "CareRoute",
+  "description": "Finding Healthcare When It Matters - Smart emergency healthcare discovery, nearby hospital finder, blood availability, doctor/service availability, and hospital recommendations.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
