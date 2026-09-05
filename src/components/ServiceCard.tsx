@@ -131,10 +131,48 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-slate-500">On-Duty Specialist:</span>
+            <span className="text-slate-500">Department Status:</span>
             <span className="font-medium text-slate-800 truncate max-w-[180px]">
-              {matchingSpecialist || (isServiceOffered ? 'General Physician on call' : 'None')}
+              {isServiceOffered ? 'Active Clinical Department' : 'Not Offered'}
             </span>
+          </div>
+
+          {/* Attending Doctor for this Department */}
+          <div className="pt-2 border-t border-slate-100">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+              Attending Doctor & Field:
+            </span>
+            {(() => {
+              const serviceKeyword = service.toLowerCase().split(' ')[0];
+              const matchingDoctor = hospital.doctors?.find((doc) =>
+                doc.field.toLowerCase().includes(serviceKeyword)
+              );
+
+              if (matchingDoctor) {
+                return (
+                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="font-bold text-slate-900 text-xs truncate flex items-center gap-1">
+                        <UserCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span className="truncate">{matchingDoctor.name}</span>
+                      </span>
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 shrink-0">
+                        {matchingDoctor.availabilityStatus}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-emerald-900 font-medium truncate mt-0.5">
+                      Field: {matchingDoctor.field}
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="text-xs text-slate-600 font-medium">
+                  {matchingSpecialist || (isServiceOffered ? 'Department Duty Specialist on call' : 'None')}
+                </div>
+              );
+            })()}
           </div>
 
           <div className="flex items-center justify-between pt-1 border-t border-slate-100">

@@ -284,7 +284,7 @@ export const RecommendationPage: React.FC<RecommendationPageProps> = ({
                         <span className="truncate">{res.hospital.address}</span>
                       </p>
 
-                      <div className="text-xs text-slate-600 space-y-1 mb-3 bg-slate-50 p-2.5 rounded-xl">
+                      <div className="text-xs text-slate-600 space-y-1 mb-2.5 bg-slate-50 p-2.5 rounded-xl">
                         <div className="flex justify-between">
                           <span>Distance:</span>
                           <strong className="text-slate-900">{res.scoreBreakdown.distanceKm} km</strong>
@@ -294,6 +294,21 @@ export const RecommendationPage: React.FC<RecommendationPageProps> = ({
                           <strong className="text-slate-900">{formatETA(res.scoreBreakdown.estimatedMinutes)}</strong>
                         </div>
                       </div>
+
+                      {/* Doctor available on duty */}
+                      {res.hospital.doctors && res.hospital.doctors.length > 0 && (
+                        <div className="text-xs mb-3 bg-emerald-50/70 border border-emerald-200/80 p-2 rounded-xl">
+                          <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">
+                            Doctor on Duty:
+                          </span>
+                          <span className="font-bold text-slate-900 block truncate mt-0.5">
+                            {res.hospital.doctors[0].name}
+                          </span>
+                          <span className="text-[11px] text-emerald-900 font-medium block truncate">
+                            Field: {res.hospital.doctors[0].field}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 flex-wrap">

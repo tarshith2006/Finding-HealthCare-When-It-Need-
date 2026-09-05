@@ -34,6 +34,16 @@ export type ServiceName =
   | 'Trauma Care'
   | 'ICU';
 
+export interface Doctor {
+  id: string;
+  name: string;
+  field: string;
+  qualification: string;
+  experienceYears: number;
+  availabilityStatus: 'On Duty' | 'Available Today' | 'On Call' | 'In Emergency Bay';
+  shiftHours?: string;
+}
+
 export interface Hospital {
   id: number;
   name: string;
@@ -47,6 +57,7 @@ export interface Hospital {
   emergencyAvailable: boolean;
   services: ServiceName[];
   specialists: string[];
+  doctors: Doctor[];
   bloodAvailability: Record<BloodGroup, AvailabilityStatus>;
   rating: number;
   totalBeds: number;

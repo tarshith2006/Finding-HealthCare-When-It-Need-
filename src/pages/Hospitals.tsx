@@ -62,14 +62,20 @@ export const HospitalsPage: React.FC<HospitalsPageProps> = ({
     return localizedHospitals.filter((hospital) => {
       // 1. Text search query
       if (filters.searchQuery) {
-        const query = filters.searchQuery.toLowerCase();
+        const query = filters.searchQuery.toLowerCase().trim();
         const matchesName = hospital.name.toLowerCase().includes(query);
         const matchesLocality = hospital.locality.toLowerCase().includes(query);
         const matchesAddress = hospital.address.toLowerCase().includes(query);
         const matchesService = hospital.services.some((s) =>
           s.toLowerCase().includes(query)
         );
-        if (!matchesName && !matchesLocality && !matchesAddress && !matchesService) {
+        const matchesDoctor = hospital.doctors?.some(
+          (d) =>
+            d.name.toLowerCase().includes(query) ||
+            d.field.toLowerCase().includes(query) ||
+            d.qualification.toLowerCase().includes(query)
+        );
+        if (!matchesName && !matchesLocality && !matchesAddress && !matchesService && !matchesDoctor) {
           return false;
         }
       }

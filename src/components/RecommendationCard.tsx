@@ -8,7 +8,9 @@ import {
   MapPin,
   ShieldCheck,
   ChevronRight,
-  Info
+  Info,
+  Stethoscope,
+  UserCheck
 } from 'lucide-react';
 import { Hospital, HospitalScoreBreakdown, UserLocation, CallTarget } from '../types';
 import { openNavigation } from '../services/navigationService';
@@ -130,6 +132,55 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
           ))}
         </ul>
       </div>
+
+      {/* Attending Doctors & Medical Specialists Available */}
+      {hospital.doctors && hospital.doctors.length > 0 && (
+        <div className="mb-6 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Stethoscope className="w-4 h-4 text-emerald-600" />
+              <span>Attending Doctors & Medical Fields on Duty:</span>
+            </h3>
+            <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+              Active Medical Roster
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {hospital.doctors.map((doc) => (
+              <div
+                key={doc.id}
+                className="p-3 bg-white border border-slate-200 hover:border-emerald-300 rounded-xl flex items-start justify-between gap-2 shadow-2xs transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
+                    <UserCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="truncate">{doc.name}</span>
+                  </div>
+                  <div className="text-xs font-semibold text-emerald-900 mt-1">
+                    Field: {doc.field}
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">
+                    {doc.qualification} • {doc.experienceYears} yrs exp
+                  </div>
+                </div>
+
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                    doc.availabilityStatus === 'In Emergency Bay'
+                      ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                      : doc.availabilityStatus === 'On Duty'
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {doc.availabilityStatus}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Score Factor Breakdown */}
       <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl mb-6">

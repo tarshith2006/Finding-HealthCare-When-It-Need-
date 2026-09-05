@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   X,
   Phone,
@@ -13,7 +13,11 @@ import {
   CheckCircle,
   AlertTriangle,
   XCircle,
-  PhoneForwarded
+  PhoneForwarded,
+  Stethoscope,
+  UserCheck,
+  Award,
+  Search
 } from 'lucide-react';
 import { AvailabilityStatus, BloodGroup, Hospital, UserLocation, CallTarget } from '../types';
 import { calculateDistance, calculateETA, formatETA } from '../utils/distanceCalculator';
@@ -33,6 +37,8 @@ export const HospitalDetailsModal: React.FC<HospitalDetailsModalProps> = ({
   onClose,
   onStartCall
 }) => {
+  const [doctorSearch, setDoctorSearch] = useState('');
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -225,21 +231,156 @@ export const HospitalDetailsModal: React.FC<HospitalDetailsModalProps> = ({
             </div>
           </div>
 
-          {/* Specialists On Call */}
-          <div>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-              On-Call Doctors & Specialists:
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {hospital.specialists.map((spec) => (
-                <div
-                  key={spec}
-                  className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 flex items-center gap-2"
-                >
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>{spec}</span>
+          {/* Available Doctors & Medical Specialists */}
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <Stethoscope className="w-4 h-4 text-emerald-600" />
+                  <span>Available Doctors & Medical Specialists ({hospital.doctors?.length || hospital.specialists.length}):</span>
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Verified attending medical practitioners, on-duty physicians, and their medicine field.
+                </p>
+              </div>
+
+              {hospital.doctors && hospital.doctors.length > 2 && (
+                <div className="relative w-full sm:w-56">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={doctorSearch}
+                    onChange={(e) => setDoctorSearch(e.target.value)}
+                    placeholder="Search doctor or field..."
+                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-emerald-500"
+                  />
+                  {doctorSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setDoctorSearch('')}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
-              ))}
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {hospital.doctors && hospital.doctors.length > 0 ? (
+                (() => {
+                  const filteredDocs = hospital.doctors.filter(
+                    (d) =>
+                      !doctorSearch ||
+                      d.name.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+                      d.field.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+                      d.qualification.toLowerCase().includes(doctorSearch.toLowerCase())
+                  );
+
+                  if (filteredDocs.length === 0) {
+                    return (
+                      <div className="sm:col-span-2 p-4 text-center text-xs text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
+                        No doctors matching "{doctorSearch}". Try searching for another name or field (e.g. Cardiology, Surgery, Pediatrics).
+                      </div>
+                    );
+                  }
+
+                  return filteredDocs.map((doctor) => {
+                    const isBay = doctor.availabilityStatus === 'In Emergency Bay';
+                    const isDuty = doctor.availabilityStatus === 'On Duty';
+
+                    return (
+                      <div
+                        key={doctor.id}
+                        className="p-3.5 bg-slate-50/90 hover:bg-slate-100/80 border border-slate-200 rounded-2xl flex flex-col justify-between transition-colors shadow-2xs"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                                <UserCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                <span>{doctor.name}</span>
+                              </h4>
+                              <div className="text-[11px] font-medium text-slate-500 mt-0.5">
+                                {doctor.qualification} • {doctor.experienceYears} yrs exp
+                              </div>
+                            </div>
+
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                                isBay
+                                  ? 'bg-rose-100 text-rose-800 border border-rose-200 animate-pulse'
+                                  : isDuty
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                  : 'bg-slate-200 text-slate-700'
+                              }`}
+                            >
+                              ● {doctor.availabilityStatus}
+                            </span>
+                          </div>
+
+                          {/* Specific Field in Medicine */}
+                          <div className="bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                              Medical Field:
+                            </span>
+                            <span className="text-xs font-semibold text-emerald-950 block">
+                              {doctor.field}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 pt-2.5 border-t border-slate-200/80 flex items-center justify-between text-[11px] text-slate-500">
+                          {doctor.shiftHours ? (
+                            <span className="flex items-center gap-1 truncate text-slate-600">
+                              <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                              <span className="truncate">{doctor.shiftHours}</span>
+                            </span>
+                          ) : (
+                            <span />
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const phoneToCall = hospital.emergencyPhone || hospital.phone;
+                              if (onStartCall) {
+                                onStartCall({
+                                  phoneNumber: phoneToCall,
+                                  title: doctor.name,
+                                  subtitle: `${doctor.field} • ${hospital.name}`,
+                                  hospitalName: hospital.name,
+                                  department: `${doctor.field} Desk`,
+                                  address: hospital.address,
+                                  isEmergency: isBay || isDuty
+                                });
+                              } else {
+                                triggerDeviceDial(phoneToCall);
+                              }
+                            }}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 transition-colors shadow-2xs cursor-pointer shrink-0"
+                            title={`Call department for ${doctor.name}`}
+                          >
+                            <Phone className="w-3 h-3 text-emerald-600" />
+                            <span>Contact</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()
+              ) : (
+                hospital.specialists.map((spec) => (
+                  <div
+                    key={spec}
+                    className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 flex items-center gap-2"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>{spec}</span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

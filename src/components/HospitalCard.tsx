@@ -7,7 +7,9 @@ import {
   ShieldAlert,
   Star,
   ExternalLink,
-  Droplet
+  Droplet,
+  Stethoscope,
+  UserCheck
 } from 'lucide-react';
 import { Hospital, UserLocation, CallTarget } from '../types';
 import { calculateDistance, calculateETA, formatETA } from '../utils/distanceCalculator';
@@ -156,6 +158,80 @@ export const HospitalCard: React.FC<HospitalCardProps> = ({
             )}
           </div>
         </div>
+
+        {/* Doctors on Roster (Name & Medical Field) */}
+        {hospital.doctors && hospital.doctors.length > 0 && (
+          <div className="pt-2.5 pb-1 border-t border-slate-100 mb-2">
+            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 mb-1.5">
+              <span className="flex items-center gap-1 text-slate-500 uppercase tracking-wider">
+                <Stethoscope className="w-3 h-3 text-emerald-600" />
+                <span>Attending Doctors:</span>
+              </span>
+              <span className="text-emerald-700 font-bold">
+                {hospital.doctors.length} available
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              {(() => {
+                const sorted = [...hospital.doctors].sort((a, b) => {
+                  if (highlightService) {
+                    const matchA = a.field.toLowerCase().includes(highlightService.toLowerCase());
+                    const matchB = b.field.toLowerCase().includes(highlightService.toLowerCase());
+                    if (matchA && !matchB) return -1;
+                    if (!matchA && matchB) return 1;
+                  }
+                  return 0;
+                });
+
+                return sorted.slice(0, 2).map((doc) => {
+                  const isHighlighted =
+                    highlightService &&
+                    doc.field.toLowerCase().includes(highlightService.toLowerCase());
+
+                  return (
+                    <div
+                      key={doc.id}
+                      className={`p-2 rounded-xl text-xs flex items-center justify-between gap-2 border ${
+                        isHighlighted
+                          ? 'bg-emerald-50/70 border-emerald-300'
+                          : 'bg-slate-50 border-slate-200/80'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-slate-900 truncate flex items-center gap-1">
+                          <UserCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span className="truncate">{doc.name}</span>
+                        </div>
+                        <div className="text-[11px] text-emerald-900 font-medium truncate mt-0.5">
+                          {doc.field}
+                        </div>
+                      </div>
+
+                      <span
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
+                          doc.availabilityStatus === 'In Emergency Bay'
+                            ? 'bg-rose-100 text-rose-800'
+                            : doc.availabilityStatus === 'On Duty'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        {doc.availabilityStatus}
+                      </span>
+                    </div>
+                  );
+                });
+              })()}
+
+              {hospital.doctors.length > 2 && (
+                <div className="text-[11px] text-slate-400 font-medium text-right pr-0.5">
+                  +{hospital.doctors.length - 2} more doctors on staff
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Bottom CTA Row: Call, View Details, Navigate */}

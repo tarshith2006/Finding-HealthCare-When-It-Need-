@@ -1,4 +1,4 @@
-import { Hospital, UserLocation } from '../types';
+import { Hospital, UserLocation, Doctor } from '../types';
 
 export const HOSPITALS_DATA: Hospital[] = [
   {
@@ -24,6 +24,44 @@ export const HOSPITALS_DATA: Hospital[] = [
       'Senior Interventional Cardiologist',
       'Consultant Neurologist',
       'Trauma & Critical Care Lead'
+    ],
+    doctors: [
+      {
+        id: 'doc-101',
+        name: 'Dr. Rajesh V. Nair',
+        field: 'Cardiology (Interventional & Coronary Care)',
+        qualification: 'MD, DM (Cardiology), FACC',
+        experienceYears: 18,
+        availabilityStatus: 'On Duty',
+        shiftHours: '24/7 Emergency Roster'
+      },
+      {
+        id: 'doc-102',
+        name: 'Dr. Ananya Sengupta',
+        field: 'Neurology (Stroke & Neurovascular)',
+        qualification: 'MD, DM (Neurology)',
+        experienceYears: 14,
+        availabilityStatus: 'Available Today',
+        shiftHours: '08:00 - 20:00'
+      },
+      {
+        id: 'doc-103',
+        name: 'Dr. Vikramaditya Rao',
+        field: 'Trauma & Critical Care Surgery',
+        qualification: 'MS (Gen Surg), MCh (Trauma)',
+        experienceYears: 16,
+        availabilityStatus: 'In Emergency Bay',
+        shiftHours: 'Active Trauma Shift'
+      },
+      {
+        id: 'doc-104',
+        name: 'Dr. Meera Nambiar',
+        field: 'General Internal Medicine & ICU',
+        qualification: 'MD (Internal Medicine), EDIC',
+        experienceYears: 12,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Day & Triage Shift'
+      }
     ],
     bloodAvailability: {
       'O+': 'Available',
@@ -64,6 +102,44 @@ export const HOSPITALS_DATA: Hospital[] = [
       'Orthopedic Reconstruction Lead',
       'Burn Unit Specialist'
     ],
+    doctors: [
+      {
+        id: 'doc-201',
+        name: 'Dr. Siddharth Verma',
+        field: 'Emergency & Acute Trauma Surgery',
+        qualification: 'MS (General Surgery), FACS',
+        experienceYears: 19,
+        availabilityStatus: 'In Emergency Bay',
+        shiftHours: '24/7 Trauma Desk'
+      },
+      {
+        id: 'doc-202',
+        name: 'Dr. Rohan Kulkarni',
+        field: 'Orthopedics (Complex Fracture & Joint)',
+        qualification: 'MS (Orthopedics), DNB',
+        experienceYears: 15,
+        availabilityStatus: 'On Duty',
+        shiftHours: '09:00 - 21:00'
+      },
+      {
+        id: 'doc-203',
+        name: 'Dr. Shalini Deshmukh',
+        field: 'Burn Care & Microvascular Surgery',
+        qualification: 'MS, MCh (Plastic & Reconstructive)',
+        experienceYears: 13,
+        availabilityStatus: 'Available Today',
+        shiftHours: 'On-Call Specialist'
+      },
+      {
+        id: 'doc-204',
+        name: 'Dr. Arvind Swaminathan',
+        field: 'Critical Care & Resuscitation Medicine',
+        qualification: 'MD (Emergency Medicine), FCCP',
+        experienceYears: 11,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Night & Resuscitation Desk'
+      }
+    ],
     bloodAvailability: {
       'O+': 'Available',
       'A+': 'Available',
@@ -100,6 +176,44 @@ export const HOSPITALS_DATA: Hospital[] = [
       'Cardiothoracic Surgeon',
       'Chief of Cath Lab',
       'Heart Failure Specialist'
+    ],
+    doctors: [
+      {
+        id: 'doc-301',
+        name: 'Dr. Marcus Vance',
+        field: 'Cardiology (Interventional & Angioplasty)',
+        qualification: 'MD, FACC, FSCAI',
+        experienceYears: 22,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Cath Lab Priority Desk'
+      },
+      {
+        id: 'doc-302',
+        name: 'Dr. Elena Rostova',
+        field: 'Cardiothoracic & Vascular Surgery (CTVS)',
+        qualification: 'MD, FACS (Cardiothoracic)',
+        experienceYears: 17,
+        availabilityStatus: 'In Emergency Bay',
+        shiftHours: 'Emergency Surgical Roster'
+      },
+      {
+        id: 'doc-303',
+        name: 'Dr. David Chen',
+        field: 'Cardiology (Heart Failure & Electrophysiology)',
+        qualification: 'MD, FESC',
+        experienceYears: 14,
+        availabilityStatus: 'Available Today',
+        shiftHours: '08:30 - 18:30'
+      },
+      {
+        id: 'doc-304',
+        name: 'Dr. Preeti Sundaram',
+        field: 'Cardiac Intensive Care & Echocardiography',
+        qualification: 'MD (Anesthesia & Critical Care)',
+        experienceYears: 12,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'CCU Rounding Shift'
+      }
     ],
     bloodAvailability: {
       'O+': 'Available',
@@ -138,6 +252,44 @@ export const HOSPITALS_DATA: Hospital[] = [
       'Pediatric Neurologist',
       'Neuro-Intensivist'
     ],
+    doctors: [
+      {
+        id: 'doc-401',
+        name: 'Dr. Farhan Akhtar',
+        field: 'Neurology (Acute Stroke & Thrombolysis)',
+        qualification: 'MD, DM (Neurology), FINR',
+        experienceYears: 16,
+        availabilityStatus: 'In Emergency Bay',
+        shiftHours: 'Code Stroke Response Lead'
+      },
+      {
+        id: 'doc-402',
+        name: 'Dr. Natasha Roy',
+        field: 'Neurosurgery (Cerebrovascular & Skull Base)',
+        qualification: 'MCh (Neurosurgery), IFAANS',
+        experienceYears: 18,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Neuro-Trauma Desk'
+      },
+      {
+        id: 'doc-403',
+        name: 'Dr. K. Radhakrishnan',
+        field: 'Neuro-Critical Care & Coma Management',
+        qualification: 'MD, DM (Neuro-Intensive Care)',
+        experienceYears: 14,
+        availabilityStatus: 'Available Today',
+        shiftHours: '08:00 - 20:00'
+      },
+      {
+        id: 'doc-404',
+        name: 'Dr. Sunita Menon',
+        field: 'Pediatric Neurology & Epilepsy Care',
+        qualification: 'MD, DCH (Pediatrics), Fellowship in Neuro',
+        experienceYears: 11,
+        availabilityStatus: 'On Call',
+        shiftHours: 'Specialist Consultation Roster'
+      }
+    ],
     bloodAvailability: {
       'O+': 'Available',
       'A+': 'Limited',
@@ -175,6 +327,44 @@ export const HOSPITALS_DATA: Hospital[] = [
       'Neonatal Intensive Care Specialist',
       'Fetal Medicine Specialist'
     ],
+    doctors: [
+      {
+        id: 'doc-501',
+        name: 'Dr. Gayatri Devi',
+        field: 'Gynecology & High-Risk Obstetrics',
+        qualification: 'MD, DGO, FICOG',
+        experienceYears: 21,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Labor & Delivery Triage'
+      },
+      {
+        id: 'doc-502',
+        name: 'Dr. Arthur Pendelton',
+        field: 'Pediatrics (Neonatal Intensive Care NICU)',
+        qualification: 'MD (Pediatrics), DM (Neonatology)',
+        experienceYears: 15,
+        availabilityStatus: 'In Emergency Bay',
+        shiftHours: 'NICU Critical Response'
+      },
+      {
+        id: 'doc-503',
+        name: 'Dr. Sangeetha Bhatt',
+        field: 'Maternal-Fetal Medicine & Perinatology',
+        qualification: 'MD, MRCOG (UK)',
+        experienceYears: 13,
+        availabilityStatus: 'Available Today',
+        shiftHours: '09:00 - 19:00'
+      },
+      {
+        id: 'doc-504',
+        name: 'Dr. Rahul Saxena',
+        field: 'Pediatrics & Pediatric Emergency',
+        qualification: 'MD (Pediatrics), IAP Intensive Care',
+        experienceYears: 10,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Pediatric Emergency Desk'
+      }
+    ],
     bloodAvailability: {
       'O+': 'Available',
       'A+': 'Available',
@@ -211,6 +401,35 @@ export const HOSPITALS_DATA: Hospital[] = [
       'Burn Unit Intensivist',
       'Plastic & Microvascular Surgeon',
       'Wound Care Specialist'
+    ],
+    doctors: [
+      {
+        id: 'doc-601',
+        name: 'Dr. Tariq Al-Mansoor',
+        field: 'Burn Care & Plastic Reconstruction',
+        qualification: 'MS, MCh (Plastic Surgery), ISBI',
+        experienceYears: 20,
+        availabilityStatus: 'In Emergency Bay',
+        shiftHours: 'Acute Burn Resuscitation Lead'
+      },
+      {
+        id: 'doc-602',
+        name: 'Dr. Kavita Krishnan',
+        field: 'Critical Care & Inhalation Injury Medicine',
+        qualification: 'MD (Anesthesia & Critical Care)',
+        experienceYears: 14,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Burn ICU Supervision'
+      },
+      {
+        id: 'doc-603',
+        name: 'Dr. Neil Robertson',
+        field: 'Wound Care & Microvascular Surgery',
+        qualification: 'MD, DNB (Plastic Surgery)',
+        experienceYears: 12,
+        availabilityStatus: 'Available Today',
+        shiftHours: '09:00 - 18:00'
+      }
     ],
     bloodAvailability: {
       'O+': 'Limited',
@@ -250,6 +469,44 @@ export const HOSPITALS_DATA: Hospital[] = [
       'Internal Medicine Physician',
       'Pediatric Emergency Officer'
     ],
+    doctors: [
+      {
+        id: 'doc-701',
+        name: 'Dr. Harish Chandra',
+        field: 'General Surgery & Emergency Polytrauma',
+        qualification: 'MS (General Surgery), FAIS',
+        experienceYears: 24,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Public Emergency Casualty Head'
+      },
+      {
+        id: 'doc-702',
+        name: 'Dr. Anita Joshi',
+        field: 'General Internal Medicine & Infectious Diseases',
+        qualification: 'MD (Medicine)',
+        experienceYears: 17,
+        availabilityStatus: 'Available Today',
+        shiftHours: '08:00 - 18:00'
+      },
+      {
+        id: 'doc-703',
+        name: 'Dr. Suresh Babu',
+        field: 'Orthopedics (Fracture & Trauma Clinic)',
+        qualification: 'MS (Orthopedics)',
+        experienceYears: 15,
+        availabilityStatus: 'In Emergency Bay',
+        shiftHours: 'Casualty Ortho Roster'
+      },
+      {
+        id: 'doc-704',
+        name: 'Dr. Deepa Thomas',
+        field: 'Pediatrics & Neonatal Care',
+        qualification: 'MD (Pediatrics)',
+        experienceYears: 12,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Pediatric Casualty Duty'
+      }
+    ],
     bloodAvailability: {
       'O+': 'Available',
       'A+': 'Available',
@@ -284,6 +541,35 @@ export const HOSPITALS_DATA: Hospital[] = [
     specialists: [
       'Family Medicine Physician',
       'Outpatient Pediatrician'
+    ],
+    doctors: [
+      {
+        id: 'doc-801',
+        name: 'Dr. Christine Morris',
+        field: 'General Medicine & Family Practice',
+        qualification: 'MD (Family Medicine)',
+        experienceYears: 16,
+        availabilityStatus: 'Available Today',
+        shiftHours: 'Day Clinic (09:00 - 17:00)'
+      },
+      {
+        id: 'doc-802',
+        name: 'Dr. Robert Kim',
+        field: 'Pediatrics (Outpatient & Immunization)',
+        qualification: 'MD (Pediatrics)',
+        experienceYears: 12,
+        availabilityStatus: 'Available Today',
+        shiftHours: 'Day Clinic (09:00 - 16:30)'
+      },
+      {
+        id: 'doc-803',
+        name: 'Dr. Amit Parekh',
+        field: 'Orthopedics (Outpatient Joint & Spine)',
+        qualification: 'MBBS, D.Ortho',
+        experienceYears: 9,
+        availabilityStatus: 'On Call',
+        shiftHours: 'Weekly Clinic Consultation'
+      }
     ],
     bloodAvailability: {
       'O+': 'Currently Unavailable',
@@ -322,6 +608,35 @@ export const HOSPITALS_DATA: Hospital[] = [
       'Spine Specialist',
       'Sports Injury Specialist'
     ],
+    doctors: [
+      {
+        id: 'doc-901',
+        name: 'Dr. Vijay Raghavan',
+        field: 'Orthopedics (Trauma & Joint Reconstruction)',
+        qualification: 'MS (Orthopedics), MCh, FRCS',
+        experienceYears: 23,
+        availabilityStatus: 'In Emergency Bay',
+        shiftHours: 'Emergency Ortho Surgery Desk'
+      },
+      {
+        id: 'doc-902',
+        name: 'Dr. Sandeep K. Hegde',
+        field: 'Orthopedics (Spine Surgery & Spinal Trauma)',
+        qualification: 'MS (Ortho), FNB (Spine Surgery)',
+        experienceYears: 16,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Spine Trauma Protocol Lead'
+      },
+      {
+        id: 'doc-903',
+        name: 'Dr. Rachel Adams',
+        field: 'Orthopedics (Sports Medicine & Arthroscopy)',
+        qualification: 'MD (Sports Medicine), Fellowship Arthroscopy',
+        experienceYears: 11,
+        availabilityStatus: 'Available Today',
+        shiftHours: '08:30 - 17:30'
+      }
+    ],
     bloodAvailability: {
       'O+': 'Available',
       'A+': 'Available',
@@ -358,6 +673,35 @@ export const HOSPITALS_DATA: Hospital[] = [
       'Urgent Care Specialist',
       'Cardiologist on Call',
       'General Physician'
+    ],
+    doctors: [
+      {
+        id: 'doc-1001',
+        name: 'Dr. Kenneth O\'Connor',
+        field: 'General Medicine & Urgent Care Triage',
+        qualification: 'MD (Emergency Medicine)',
+        experienceYears: 15,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Urgent Care Walk-In Lead'
+      },
+      {
+        id: 'doc-1002',
+        name: 'Dr. Divya Ranganathan',
+        field: 'Cardiology (Acute Chest Pain & ECG Assessment)',
+        qualification: 'MD, DM (Cardiology)',
+        experienceYears: 13,
+        availabilityStatus: 'On Duty',
+        shiftHours: 'Observation & Telemetry Shift'
+      },
+      {
+        id: 'doc-1003',
+        name: 'Dr. Samuel Ward',
+        field: 'General Medicine & Ambulatory Care',
+        qualification: 'MD (Internal Medicine)',
+        experienceYears: 11,
+        availabilityStatus: 'Available Today',
+        shiftHours: '09:00 - 19:00'
+      }
     ],
     bloodAvailability: {
       'O+': 'Available',

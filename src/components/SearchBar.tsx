@@ -14,7 +14,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChange,
   onSearch,
-  placeholder = 'Search hospitals by name, service, or locality...',
+  placeholder = 'Search by hospital, doctor name, medical field, or locality...',
   id = 'hospital-search-bar'
 }) => {
   const [internalVal, setInternalVal] = useState(value);
